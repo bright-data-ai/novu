@@ -79,7 +79,7 @@ export function LoginForm({}: Props) {
         <>
           <GithubButton
             component="a"
-            href={githubLink}
+            href={`${API_ROOT}/v1/auth/openid`}
             my={30}
             variant="white"
             fullWidth
@@ -87,7 +87,7 @@ export function LoginForm({}: Props) {
             leftIcon={<Github />}
             sx={{ color: colors.B40, fontSize: '16px', fontWeight: 700, height: '50px' }}
           >
-            Sign In with GitHub
+            Sign In with Bright
           </GithubButton>
           <Divider label={<Text color={colors.B40}>Or</Text>} color={colors.B30} labelPosition="center" my="md" />
         </>

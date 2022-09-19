@@ -10,6 +10,7 @@ import { AuthService } from './services/auth.service';
 import { USE_CASES } from './usecases';
 import { SharedModule } from '../shared/shared.module';
 import { GithubStrategy } from './services/passport/github.strategy';
+import { OpenidStrategy } from './services/passport/openid.strategy';
 import { OrganizationModule } from '../organization/organization.module';
 import { EnvironmentsModule } from '../environments/environments.module';
 import { JwtSubscriberStrategy } from './services/passport/subscriber-jwt.strategy';
@@ -20,6 +21,10 @@ const AUTH_STRATEGIES = [];
 
 if (process.env.GITHUB_OAUTH_CLIENT_ID) {
   AUTH_STRATEGIES.push(GithubStrategy);
+}
+
+if (process.env.OPENID_OAUTH_CLIENT_ID) {
+  AUTH_STRATEGIES.push(OpenidStrategy);
 }
 
 @Module({
@@ -63,6 +68,18 @@ export class AuthModule implements NestModule {
         )
         .forRoutes({
           path: '/auth/github',
+          method: RequestMethod.GET,
+        });
+    } else if (process.env.OPENID_OAUTH_CLIENT_ID) {
+      consumer
+        .apply(
+          passport.authenticate('openid', {
+            session: false,
+            scope: ['email profile'],
+          })
+        )
+        .forRoutes({
+          path: '/auth/openid',
           method: RequestMethod.GET,
         });
     }

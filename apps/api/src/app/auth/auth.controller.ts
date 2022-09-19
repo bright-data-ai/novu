@@ -111,6 +111,46 @@ export class AuthController {
     return response.redirect(url);
   }
 
+  @Get('/openid')
+  openidAuth() {
+    if (!process.env.OPENID_OAUTH_CLIENT_ID || !process.env.OPENID_OAUTH_CLIENT_SECRET) {
+      throw new ApiException(
+        'Openid auth is not configured, please provide OPENID_OAUTH_CLIENT_ID and OPENID_OAUTH_CLIENT_SECRET as env variables'
+      );
+    }
+
+    return {
+      success: true,
+    };
+  }
+
+  @Get('/openid/callback')
+  @UseGuards(AuthGuard('openid'))
+  async openidCallback(@Req() request, @Res() response) {
+    if (!request.user || !request.user.token) {
+      return response.redirect(`${process.env.CLIENT_SUCCESS_AUTH_REDIRECT}?error=AuthenticationError`);
+    }
+
+    let url = process.env.CLIENT_SUCCESS_AUTH_REDIRECT;
+    const redirectUrl = JSON.parse(request.query.state).redirectUrl;
+
+    /**
+     * Make sure we only allow localhost redirects for CLI use and our own success route
+     * https://github.com/novuhq/novu/security/code-scanning/3
+     */
+    if (redirectUrl && redirectUrl.startsWith('http://localhost:')) {
+      url = redirectUrl;
+    }
+
+    url += `?token=${request.user.token}`;
+
+    if (request.user.newUser) {
+      url += '&newUser=true';
+    }
+
+    return response.redirect(url);
+  }
+
   @Get('/refresh')
   @UseGuards(JwtAuthGuard)
   refreshToken(@UserSession() user: IJwtPayload) {

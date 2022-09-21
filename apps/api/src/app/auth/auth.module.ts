@@ -75,7 +75,7 @@ export class AuthModule implements NestModule {
         .apply(
           passport.authenticate('openid', {
             session: false,
-            scope: ['email profile'],
+            scope: ['email profile user_id'],
           })
         )
         .forRoutes({
